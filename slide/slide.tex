@@ -1,0 +1,174 @@
+%\documentclass[14pt,xcolor=pst]{beamer}
+\documentclass[14pt,xcolor=pstdvips]{beamer}
+\usetheme{Madrid}
+%\mode<presentation>{\usetheme{Warsaw}}
+%,/usr/faculty/professor/cjlin/latex/labelfig}
+% \pagecolor{yellow}
+\def\printlandscape{\special{landscape}}    % Works with dvips.
+\setbeamercolor{alerted text}{fg=red!80!yellow}
+%\setbeamercolor{alerted text}{fg=red!80!yellow}
+
+
+%\usepackage{labelfig}
+%\usepackage[round,authoryear]{natbib}
+\usepackage{array,amsmath,latexsym,epsfig,float,afterpage,alltt,amssymb,theorem,enumerate,pstricks,bm,hhline,url,xr,float,multicol,multirow,ragged2e,colortbl,xspace, natbib}
+\usepackage{ifthen}
+\usepackage{tikz}
+
+%\usepackage{CJKutf8} % since thesis.tex uses CJK
+%\usepackage[
+%  unicode,
+%  bookmarksnumbered=true,
+%  breaklinks=true,
+%]{hyperref}
+%\hypersetup{
+%  pdfauthor={\myCname (\myEname)},
+%  pdftitle={\cTitle (\eTitle)},
+%}
+
+%\externaldocument{../thesis} % xref
+
+\usepackage{bibentry}
+
+\usetikzlibrary{calc,trees,positioning,arrows,chains,shapes.geometric,%
+    decorations.pathreplacing,decorations.pathmorphing,shapes,%
+    matrix,shapes.symbols}
+
+\tikzset{
+  >=stealth',
+  punktchain/.style={
+    rectangle, 
+    rounded corners, 
+    draw=black, thick,
+    text width=10em, 
+    minimum height=1em, 
+    text centered, 
+    on chain},
+  line/.style={draw, thick, <-},
+  every join/.style={->, thick,shorten >=1pt},
+}
+
+
+
+%\input{../macro} % pull pre-defined macros
+%\input{../info} % pull pre-defined macros
+
+%\newboolean{thesis}
+%\newcommand{\best}{\alert}
+
+%\AtBeginSubsection[]
+%{
+%    \begin{frame}<beamer>
+%        \frametitle{Outline}
+%        \tableofcontents[current,currentsubsection]
+%    \end{frame}
+%}
+
+\def\bw{{\boldsymbol w}}
+\def\bx{{\boldsymbol x}}
+\def\by{{\boldsymbol y}}
+\def\bxi{{\boldsymbol \xi}}
+\def\svmlin{{\sf SVMlin}\xspace}
+\def\libsvm{{\sf LIBSVM}\xspace}
+\def\liblinear{{\sf LIBLINEAR}\xspace}
+\def\vw{{\sf VW}\xspace}
+\def\HIVA{{\sf HIVA}\xspace}
+\def\IBNSINA{{\sf IBN\_SINA}\xspace}
+\def\NOVA{{\sf NOVA}\xspace}
+\def\ORANGE{{\sf ORANGE}\xspace}
+\def\SYLVA{{\sf SYLVA}\xspace}
+\def\SYLVAexp{{\sf SYLVAexp}\xspace}
+\def\ZEBRA{{\sf ZEBRA}\xspace}
+\def\A{{\sf A}\xspace}
+\def\B{{\sf B}\xspace}
+\def\C{{\sf C}\xspace}
+\def\D{{\sf D}\xspace}
+\def\E{{\sf E}\xspace}
+\def\F{{\sf F}\xspace}
+
+
+
+
+\begin{document}
+
+
+\title[Nystr\"om Decomposition]{Solving Non-Linear SVM in Linear Time -- A Nystr\"om Approximated SVM with Applications to Image Classification}
+\author[Ming-Hen Tsai]{
+Ming-Hen Tsai\\
+Academia Sinica\\ 
+(now at Google Inc.)\\
+\smallskip
+\smallskip
+Joint work with Yi-Ren Yeh, Yuh-Jye Lee and Yu-Chiang Wang \\
+}
+\institute[Academia Sinica]{}
+\date[May 24, 2013]{}
+
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outline}
+  \tableofcontents[pausesections]
+\end{frame}
+
+
+\section{ }
+\subsection{Introduction}
+\begin{frame}
+  \frametitle{Outline}
+  \tableofcontents[current]
+\end{frame}
+
+\begin{frame}
+  \frametitle{We Have Known..}
+  \begin{itemize}
+    \item Non-linear SVM: powerful but slow 
+    \item Linear SVM: simple but fast  
+    \item [] Paper: "Training Linear SVMs in Linear Time" by Joachims
+    \item [] Software: \liblinear, \vw, etc.
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{We Had Always Wondered...}
+  \begin{itemize}
+    \item But we want something {\bf powerful} and {\bf fast}: train faster than non-linear SVM and generate a more accurate model than linear SVM.
+    \pause
+    \item [] What should we do? 
+    \pause
+    \item Can we save some computations (for speed) and still get non-linearity (for more power)?
+    \pause
+    \item [] Yes. Do approximation!
+  \end{itemize}
+\end{frame}
+
+
+\subsection{Nystr\"om Method for Kernel Approximation}
+\begin{frame}
+  \frametitle{Kernel in Non-linear SVM}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Nystr\"om Method}
+\end{frame}
+
+\subsection{Nystr\"om Method for Linear Representation}
+\begin{frame}
+  \frametitle{An Equivalent Representation}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Equivalent Representation in Nystr\"om Method}
+\end{frame}
+
+\subsection{Experiment}
+
+\subsection{Conclusion and Application Areas}
+\begin{frame}
+  \frametitle{Conclusion and Future Work}
+\end{frame}
+
+\end{document}
