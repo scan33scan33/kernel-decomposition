@@ -56,17 +56,22 @@
 %\newboolean{thesis}
 %\newcommand{\best}{\alert}
 
-%\AtBeginSubsection[]
-%{
-%    \begin{frame}<beamer>
-%        \frametitle{Outline}
-%        \tableofcontents[current,currentsubsection]
-%    \end{frame}
-%}
+\AtBeginSubsection[]
+{
+    \begin{frame}<beamer>
+        \frametitle{Outline}
+        \tableofcontents[current,currentsubsection]
+    \end{frame}
+}
 
 \def\bw{{\boldsymbol w}}
+\def\bu{{\boldsymbol u}}
+\def\bv{{\boldsymbol v}}
 \def\bx{{\boldsymbol x}}
 \def\by{{\boldsymbol y}}
+\def\bb{{\boldsymbol b}}
+\def\balpha{{\boldsymbol \alpha}}
+\def\be{{\boldsymbol e}}
 \def\bxi{{\boldsymbol \xi}}
 \def\svmlin{{\sf SVMlin}\xspace}
 \def\libsvm{{\sf LIBSVM}\xspace}
@@ -148,11 +153,67 @@ Joint work with Yi-Ren Yeh, Yuh-Jye Lee and Yu-Chiang Wang \\
 
 \subsection{Nystr\"om Method for Kernel Approximation}
 \begin{frame}
+  \frametitle{Definitions and a Brief Review (1/2)}
+  \begin{itemize}
+    \item Input Data: $\{(\by, X)\} = \{(y_i, \bx_i)\}_{i=1}^\ell$. $y_i$: label, $\bx_i$: feature vector.
+    \item (Non-zero) dimension of $\bx_i$: $n$
+    \item Non-linear mapping $\phi(\bx)$ (e.g. bi-gram features)
+    \item Kernel function: $K(\bu, \bv) = \phi(\bu)^T \phi(\bv)$, usually computed in linear time.
+    \pause
+    \item Lower bound for data storage and training: $\Omega(\ell n)$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Definitions and a Brief Review (2/2)}
+  \begin{itemize}
+    \item Primal:
+    \begin{equation}
+      \min_{\bw, b}
+      \frac{1}{2} \bw^T\bw + C\sum_{i=1}^\ell \max(1-y_i\bw^T\phi(\bx_i), 0) \nonumber
+    \end{equation} 
+    \item Dual: 
+    \begin{align}
+    \min_{\balpha} \  &  \frac{1}{2} \balpha^T Q  \balpha - \be^T \balpha \nonumber \\
+    \mbox{s.t.} \  & 0 \le \alpha_i \le C \quad \forall i \mbox{.} \nonumber
+    \end{align}
+    \item Primal-Dual Correspondence: $\bw = \sum_{i=1}^\ell y_i \alpha_i \phi(\bx_i)$ 
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
   \frametitle{Kernel in Non-linear SVM}
+  \begin{itemize}
+    \item Dual form:
+    \begin{align}
+    \label{eq:svmdual} \nonumber
+    \min_{\balpha} \  &  \frac{1}{2} \balpha^T Q  \balpha - \be^T \balpha \nonumber \\
+    \mbox{s.t.} \  & 0 \le \alpha_i \le C \quad \forall i \mbox{.} \nonumber
+    \end{align}
+    \item Kernel matrix $Q$ with $Q_{ij} = K(\bx_i, \bx_j)$.
+    \pause
+    \item [] Computational time: $O(\ell^2)$ times kernel products $\sim O(\ell^2 n) \sim \ell$ times data size.
+    \item [] Space: $O(\ell^2)$.
+    \pause
+    \item $1M$ images, $1k$ dimensional features: $1M$ times more computational time, and $1M/1k = 1k$ times more space than the linear counterpart.
+    % I dont have that resources!!!
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{Nystr\"om Method}
+  \begin{itemize}
+    \item Sample $k$ feature vectors from $X$ to a set $B = \{\bb_i\}_{i = 1}^{k}$.
+    \item The apprxoimated kernel: $\tilde{Q} \sim CW^{-1}C^T$,
+    where $C_{ij} = K(\bx_i \bb_j)$ and $W_{ij} = K(\bb_i, \bb_j)$.
+    \item [] so $C$ is $\ell$ by $k$, $W$ is $k$ by $k$. Usually $n \sim k \ll \ell$.  
+    \item Diffenernt studies on how to get a small and representative basis $B$.
+    \pause
+    \item Time and space complexity:
+    \item [] Time: $O(\ell k n)$ for $C$, $O(k^2 n) + O(k^3)$ for $W^{-1}$, and $O(\ell^2 k)$ for $\tilde{Q}$. $O(\ell^2 k)$ overall. (Alright...)
+    \item [] Space: $O(\ell k)$. (Good!)
+  \end{itemize}
 \end{frame}
 
 \subsection{Nystr\"om Method for Linear Representation}
