@@ -66,7 +66,7 @@
 
 \begin{document}
 \section{ }
-\title[Nystr\"om Decomposition]{Solving Non-Linear SVM in Linear Time? -- A Nystr\"om Approximated SVM with Applications to Image Classification}
+\title[Nystr\"om Decomposition]{Solving Non-Linear SVM in Linear Time? A Nystr\"om Approximated SVM with Applications to Image Classification}
 \author[Ming-Hen Tsai]{
 {\scriptsize
 Ming-Hen Tsai, Academia Sinica, Taiwan (now at Google Inc.)\\
@@ -118,7 +118,7 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
   \begin{itemize}
     \item Non-linear SVM: powerful but slow 
     \item Linear SVM: simple but fast  
-    \item [] Paper: "Training Linear SVMs in Linear Time" by Joachims
+    \item [] Paper: ``Training Linear SVMs in Linear Time'' by Joachims KDD'06
     \item [] Software: \liblinear, \vw, etc.
  \end{itemize}
 \end{frame}
@@ -137,29 +137,30 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
 \end{frame}
 
 
-\subsection{Nystr\"om Method for Kernel Approximation}
+\subsection{The Nystr\"om Method for Kernel Approximation}
 \begin{frame}
   \frametitle{Definitions and a Brief Review (1/2)}
   \begin{itemize}
     \item Input Data: $\{(\by, X)\} = \{(y_i, \bx_i)\}_{i=1}^\ell$. $y_i$: label, $\bx_i$: feature vector.
-    \item (Non-zero) dimension of $\bx_i$: $n$
+    \item (Non-zero) dimension of $\bx_i$: $d$
     \item Non-linear mapping $\phi(\bx)$ (e.g. bi-gram features)
     \item Kernel function: $K(\bu, \bv) = \phi(\bu)^T \phi(\bv)$, usually computed in linear time.
-    \item For ease of representaion, for $U = [\bu_1, \dots, \bu_\ell]$ and $V = [\bv_1, \dots, \bv_{\tilde{\ell}}]$, we define $Q = K(U, V)$, where $Q_{ij} = K(\bu_i, \bv_j)$
+    \item For ease of representation, for $U = [\bu_1, \dots, \bu_\ell]$ and $V = [\bv_1, \dots, \bv_{\tilde{\ell}}]$, we define $Q = K(U, V)$, where $Q_{ij} = K(\bu_i, \bv_j)$
+    % rv_1_henry: I use \tilde{\ell}  here because U and V can be of different sizes
     \pause
-    \item Lower bound for data storage and training: $\Omega(\ell n)$.
+    \item Lower bound for data storage and training: $\Omega(\ell d)$.
   \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{Definitions and a Brief Review (2/2)}
   \begin{itemize}
-    \item Primal:
+    \item Primal SVM:
     \begin{equation}
       \min_{\bw, b}
       \frac{1}{2} \bw^T\bw + C\sum_{i=1}^\ell \max(1-y_i\bw^T\phi(\bx_i), 0) \nonumber
     \end{equation} 
-    \item Dual: 
+    \item Dual SVM: 
     \begin{align}
     \min_{\balpha} \  &  \frac{1}{2} \balpha^T Q  \balpha - \be^T \balpha \nonumber \\
     \mbox{s.t.} \  & 0 \le \alpha_i \le C \quad \forall i \mbox{.} \nonumber
@@ -180,10 +181,12 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
     \end{align}
     \item Kernel matrix $Q$ with $Q_{ij} = K(\bx_i, \bx_j)$.
     \pause
-    \item [] Computational time: $O(\ell^2)$ times kernel products $\sim O(\ell^2 n) \sim \ell$ times data size.
+    \item [] Computational time: $O(\ell^2 d) \sim \ell$ times data size.
     \item [] Space: $O(\ell^2)$.
     \pause
-    \item $1M$ images, $1k$ dimensional features: $1M$ times more computational time, and $1M/1k = 1k$ times more space than the linear counterpart.
+    \item $1M$ images: $1M$ times more computational time than the linear counterpart.
+    % rv1_henry: Only list out time now.
+%    \item $1M$ images, $1k$ dimensional features: $1M$ times more computational time, and $1M/1k = 1k$ times more space than the linear counterpart.
     % I dont have that resources!!!
   \end{itemize}
 \end{frame}
@@ -191,8 +194,8 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
 \begin{frame}
   \frametitle{Nystr\"om Method}
   \begin{itemize}
-    \item Sample $\tilde{\ell}$ feature vectors from $X$ to a set $B = \{\bb_i\}_{i = 1}^{\tilde{\ell}}$.
-    \item The apprxoimated kernel: $Q \sim \tilde{Q} = P^TW^{-1}P$,
+    \item Sample $\tilde{\ell} (\ll \ell)$ feature vectors from $X$ with a basis set $B = \{\bb_i\}_{i = 1}^{\tilde{\ell}}$.
+    \item The apprxoimated kernel: $Q \sim \tilde{Q} = P^TW^{-1}P$, \\
     where $P_{ij} = K(\bx_i \bb_j)$ and $W_{ij} = K(\bb_i, \bb_j)$.
 %    \item [] so $C$ is $\ell$ by $k$, $W$ is $k$ by $k$. Usually $n \sim k \ll \ell$. 
 \begin{figure}
@@ -202,19 +205,19 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
 
 
     \pause
-    \item Time and space complexity:
-    \item [] Time: Basis selection time + $O(\ell^2 \max(\tilde{\ell}, n))$ overall. (Alright...)
-    \item [] Space: $O(\ell \max(\tilde{\ell}, n))$. (Good! But we don't know how large is $\tilde{\ell}$.)
+    \item Time: Basis Selection + $O(\ell^2 \max(\tilde{\ell}, d))$ overall. (Alright...)
+    \item [] Space: $O(\ell \max(\tilde{\ell}, d))$. (Good! Don't know how large is $\tilde{\ell}$..)
     \pause
     \item Exists studies on how to get a compact and representative $B$.
   \end{itemize}
 \end{frame}
 
-\subsection{Nystr\"om Method for Linear Representation}
+\subsection{The Nystr\"om Method for Linear SVM Classification}
 \begin{frame}
   \frametitle{An Equivalent Representation (1/2)}
   \begin{itemize}
-    \item Bottleneck for the previous method: kernel matrix $Q$ of size $O(\ell^2)$. But observe the folliwing...
+    \item Bottleneck: kernel matrix $Q$ of size $O(\ell^2)$.
+    \item [] But observe the following...
     \pause
     \item $Q = \tilde{X}^T\tilde{X}$ by Cholesky decomposition. (This is valid because $Q$ is PSD by definition.)
     \item Investigate the columns of $\tilde{X} = [\tilde{\bx}_1 \dots \tilde{\bx}_\ell]$. We have 
@@ -231,13 +234,13 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
 \begin{frame}
   \frametitle{An Equivalent Representation (2/2)}
   \begin{itemize}
-    \item Dual: 
+    \item SVM Dual: 
     \begin{align}
     \min_{\balpha} \  &  \frac{1}{2} \balpha^T Q  \balpha - \be^T \balpha \nonumber \\
     \mbox{s.t.} \  & 0 \le \alpha_i \le C \quad \forall i \mbox{.} \nonumber
     \end{align}
     \pause
-    \item Primal:
+    \item SVM Primal:
     \begin{equation}
       \min_{\bw, b}
       \frac{1}{2} \bw^T\bw + C\sum_{i=1}^\ell \max(1-y_i\bw^T\tilde{\bx}_i, 0) \nonumber
@@ -255,9 +258,9 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
     \item As $\tilde{Q} = P^TW^{-1}P$, we can find a matrix $R$ such that $W^{-1} = R^TR$, and $RP$ is our a compact representation.
     \pause
     \item [] Time: Basis selection time + $O(\ell \tilde{\ell} n)$ overall.
-    \item [] Space: $O(\ell \max(\tilde{\ell}, n))$.
+    \item [] Space: $O(\ell \max(\tilde{\ell}, d))$.
     \pause
-    \item If we set our basis size, $\tilde{\ell}$, as $n$. The space consumption is optimal, but the speed still depends on the basis selection part.
+    \item If we set our basis size, $\tilde{\ell}$, as $d$. The space consumption is optimal, but the speed still depends on the basis selection part.
   \end{itemize}
 \end{frame}
 
@@ -307,8 +310,8 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
     \item Compute the new data $\tilde{X} = K(X, B) \text{Chol}(K(B, B)^{-1})$.
     \item Train on $(\by, \tilde{X})$
     \pause
-    \item [] Time: $O(\sqrt{\ell} \sqrt{\ell} n) + O(\ell \tilde{\ell} n)$ overall.
-    \item [] Space: $O(\ell \max(\tilde{\ell}, n))$.
+    \item [] Time: $O(\sqrt{\ell} \sqrt{\ell} d) + O(\ell \tilde{\ell} d)$ overall.
+    \item [] Space: $O(\ell \max(\tilde{\ell}, d))$.
   \end{enumerate}
 \end{frame}
 
@@ -403,15 +406,13 @@ linear SVM & $91.917 \pm 0.077$ & $14.510 $ & $0.381 $   \\
 %-----------------------------------------------
 \begin{frame}{Conclusion}
 \begin{itemize}
-  \item We proposed a method to solve an approximated dual SVM in the primal based on Nystr\"om approximation.
-  \item Our proposed method automatically determines the optimal basis matrix.
-  \item The proposed method allows us to solve linear SVMs whose time complexity is simply scaling up with the dataset size.
+  \item We proposed a method to solve an approximated dual SVM in the primal based on Nystr\"om approximation. The new method scales linearly in time and space.
   \item Experiments compared by linear SVM, our method
   \begin{itemize}
     \item achieved improved recognition accuracy
     \item reported comparable computation time
   \end{itemize}
-  \item Both training and testing time using our approximated model was remarkably reduced compared to that of nonlinear SVMs.
+  \item Both training and testing time and space using our approximated model was remarkably reduced compared to that of nonlinear SVMs.
 \end{itemize}
 \end{frame}
 \end{document} 
