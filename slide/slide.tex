@@ -140,7 +140,7 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
   \frametitle{Definitions and a Brief Review (1/2)}
   \begin{itemize}
     \item Input Data: $\{(\by, X)\} = \{(y_i, \bx_i)\}_{i=1}^\ell$. $y_i$: label, $\bx_i$: feature vector.
-    \item (Non-zero) dimension of $\bx_i$: $d$
+    \item Dimension of $\bx_i$: $d$
     \item Non-linear mapping $\phi(\bx)$ (e.g. bi-gram features)
     \item Kernel function: $K(\bu, \bv) = \phi(\bu)^T \phi(\bv)$, usually computed in linear time.
     \item For ease of representation, for $U = [\bu_1, \dots, \bu_\ell]$ and $V = [\bv_1, \dots, \bv_{\tilde{\ell}}]$, we define $Q = K(U, V)$, where $Q_{ij} = K(\bu_i, \bv_j)$
@@ -195,14 +195,12 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
     \item A low-rank kernel approximation method. (Why?)
     \pause
     \item Sample $\tilde{\ell} (\ll \ell)$ feature vectors from $X$ with a basis set $B = \{\bb_i\}_{i = 1}^{\tilde{\ell}}$.
-    \item [] The low-rank apprxoimated kernel: $Q \sim \tilde{Q} = P^TW^{-1}P$, 
+    \item [] The low-rank apprxoimated kernel: $Q \sim \tilde{Q} = PW^{-1}P^T$, 
     where $P_{ij} = K(\bx_i, \bb_j)$ and $W_{ij} = K(\bb_i, \bb_j)$.
 %    \item [] so $C$ is $\ell$ by $k$, $W$ is $k$ by $k$. Usually $n \sim k \ll \ell$. 
 \begin{figure}
-  \includegraphics[width=3in]{nystrom.pdf}\\
+  \includegraphics[width=2.5in]{nystrom.png}\\
 \end{figure}
-
-
     \pause
     \item Time: Basis Selection + $O(\ell^2 \max(\tilde{\ell}, d))$ overall. (Alright...)
     \item [] Space: $O(\ell \max(\tilde{\ell}, d))$. (Good! Don't know how large is $\tilde{\ell}$..)
@@ -254,7 +252,11 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
   \begin{itemize}
     \item Let's go back to kernel approximation!
     \pause
-    \item As $\tilde{Q} = P^TW^{-1}P$, we can find a matrix $R$ such that $W^{-1} = R^TR$, and $RP$ is our a compact representation.
+    \item As $\tilde{Q} = PW^{-1}P^T$, we can find a matrix $R$ such that $W^{-1} = RR^T$, and $(PR)^T$ is our a compact representation.
+    \pause
+\begin{figure}
+  \includegraphics[width=1.5in]{nystrom_linear.png}\\
+\end{figure}
     \pause
     \item [] Time: Basis selection time + $O(\ell \tilde{\ell} d)$ overall.
     \item [] Space: $O(\ell \max(\tilde{\ell}, d))$.
@@ -266,19 +268,23 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
 
 \begin{frame}
   \frametitle{Brief Recap}
-%  \begin{itemize}
-%  \item []
+  \begin{itemize}
+  \item Nystr\"om approximation
   \begin{figure}
-    \includegraphics[width=3in]{nystrom.pdf}
+    \includegraphics[width=2.5in]{nystrom.png}
   \end{figure}
-%  \end{itemize}
+  \item Nystr\"om approximation for linear representation
+  \begin{figure}
+    \includegraphics[width=1.5in]{nystrom_linear.png}
+  \end{figure}
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{Another View of Basis Selection (1/2)}
   \begin{itemize}
-    \item Recall that: $P_{:i} = [K(\bx_i, \bb_1), \dots, K(\bx_i, \bb_{\tilde{\ell}})]^T$
-    \item Can we view $RP$ as input data and do feature selection?
+    \item Recall that: $P_{i:} = [K(\bx_i, \bb_1), \dots, K(\bx_i, \bb_{\tilde{\ell}})]$
+    \item Can we view $PR$ as input data and do feature selection?
     \pause
     \item No! $R$ introduces dependency between dimensions.
     \pause
@@ -292,12 +298,12 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
   \begin{itemize}
     \item Does it hurt by removing $R$?
     \pause
-    \item Say $\bp_+$ and $\bp_-$ are two samples with different labels.
+    \item Say $\bx_+$ and $\bx_-$ are two samples with different labels.
     \pause
-    \item If for a $\bw$, $\bw^T\bp_+ > \bw^T\bp_-$ (separable), then
-    $\bw^TR^{-1}R\bp_+  > \bw^TR^{-1}R\bp_-$.
+    \item If for a $\bw$, $\bw^T\bx_+ > \bw^T\bx_-$ (separable), then
+    $\bw^T{R^T}^{-1}R^T\bx_+  > \bw^T{R^T}^{-1}R^T\bx_-$.
     \pause
-    \item $R^{-1}\bw$ separates $R\bp_+$ and $R\bp_-$.
+    \item ${R^T}^{-1}\bw$ separates $R^T\bp_+$ and $R^T\bp_-$.
     \pause
     \item When doing the linear tranformation by $R$, we preserve separability.
   \end{itemize}
@@ -311,7 +317,7 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
     \item Compute the new data $\tilde{X} = RK(X, B)$, where $ R^TR =  K(B, B)^{-1}$.
     \item Train on $(\by, \tilde{X})$
     \pause
-    \item [] If we use $\tilde{\ell}$ samples to do 2....
+    \item [] If we use $\tilde{\ell}$ samples to do Step 2.
     \pause
     \item [] Time: $O(\ell \tilde{\ell} d)$ overall.
     \item [] Space: $O(\ell \max(\tilde{\ell}, d))$.
@@ -397,7 +403,8 @@ linear SVM & $91.917 \pm 0.077$ & $14.510 $ & $0.381 $   \\
 \end{frame}
 
 %-----------------------------------------------
-\begin{frame}{Conclusion}
+\begin{frame}
+\frametitle{Conclusion}
 \begin{itemize}
   \item Primal low-rank representation of Nytr\"om-approximated dual SVM.
   \item [] Training: linearly in time and space.
@@ -408,4 +415,13 @@ linear SVM & $91.917 \pm 0.077$ & $14.510 $ & $0.381 $   \\
   \item Applications: Large-Scale Image Retrieval, Realtime Machine Vision (training/test should be nearly as fast as feature extraction,) etc.
 \end{itemize}
 \end{frame}
+
+\begin{frame}
+\frametitle{Thank You}
+The most update-to-date code and slides are at\\
+	    \url{https://github.com/scan33scan33}.\\ 
+	    Feel free to drop me questions and discussions.
+\end{frame}
+
+
 \end{document} 
