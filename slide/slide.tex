@@ -120,7 +120,7 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
     \item Linear SVM: simple but fast  
     \item [] Paper: ``Training Linear SVMs in Linear Time'' by Joachims KDD'06
     \item [] Software: \liblinear, \vw, etc.
- \end{itemize}
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -128,9 +128,7 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
   \begin{itemize}
     \item But we want something {\bf powerful} and {\bf fast}: train faster than non-linear SVM and generate a more accurate model than linear SVM.
     \pause
-    \item [] What should we do? 
-    \pause
-    \item Can we save some computations (for speed) and still get non-linearity (for more power)?
+    \item [] Is this even possible? 
     \pause
     \item [] Yes. Do approximation!
   \end{itemize}
@@ -194,12 +192,13 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
 \begin{frame}
   \frametitle{Nystr\"om Method}
   \begin{itemize}
+    \item A low-rank kernel approximation method. (Why?)
+    \pause
     \item Sample $\tilde{\ell} (\ll \ell)$ feature vectors from $X$ with a basis set $B = \{\bb_i\}_{i = 1}^{\tilde{\ell}}$.
-    \item The apprxoimated kernel: $Q \sim \tilde{Q} = P^TW^{-1}P$, \\
-    where $P_{ij} = K(\bx_i \bb_j)$ and $W_{ij} = K(\bb_i, \bb_j)$.
+    \item [] The low-rank apprxoimated kernel: $Q \sim \tilde{Q} = P^TW^{-1}P$, 
+    where $P_{ij} = K(\bx_i, \bb_j)$ and $W_{ij} = K(\bb_i, \bb_j)$.
 %    \item [] so $C$ is $\ell$ by $k$, $W$ is $k$ by $k$. Usually $n \sim k \ll \ell$. 
 \begin{figure}
-  % Requires \usepackage{graphicx}
   \includegraphics[width=3in]{nystrom.pdf}\\
 \end{figure}
 
@@ -208,7 +207,7 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
     \item Time: Basis Selection + $O(\ell^2 \max(\tilde{\ell}, d))$ overall. (Alright...)
     \item [] Space: $O(\ell \max(\tilde{\ell}, d))$. (Good! Don't know how large is $\tilde{\ell}$..)
     \pause
-    \item Exists studies on how to get a compact and representative $B$.
+    \item Set our basis size, $\tilde{\ell}$ to $d$. The space consumption is optimal.
   \end{itemize}
 \end{frame}
 
@@ -257,21 +256,33 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
     \pause
     \item As $\tilde{Q} = P^TW^{-1}P$, we can find a matrix $R$ such that $W^{-1} = R^TR$, and $RP$ is our a compact representation.
     \pause
-    \item [] Time: Basis selection time + $O(\ell \tilde{\ell} n)$ overall.
+    \item [] Time: Basis selection time + $O(\ell \tilde{\ell} d)$ overall.
     \item [] Space: $O(\ell \max(\tilde{\ell}, d))$.
     \pause
-    \item If we set our basis size, $\tilde{\ell}$, as $d$. The space consumption is optimal, but the speed still depends on the basis selection part.
+    \item Needs a linear feature selection method!
   \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Brief Recap}
+%  \begin{itemize}
+%  \item []
+  \begin{figure}
+    \includegraphics[width=3in]{nystrom.pdf}
+  \end{figure}
+%  \end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{Another View of Basis Selection (1/2)}
   \begin{itemize}
-    \item We view $RP$ as input data and do feature selection on it to get a more compact feature set.
     \item Recall that: $P_{:i} = [K(\bx_i, \bb_1), \dots, K(\bx_i, \bb_{\tilde{\ell}})]^T$
-    \item This is not a basis selection algorithm because $R$ introduces dependency between dimensions.
+    \item Can we view $RP$ as input data and do feature selection?
     \pause
-    \item We remove $R$! Each dimension is then independent of other basis vector, we can view $P$ as our linear SVM input data and do feature selection for basis selection. 
+    \item No! $R$ introduces dependency between dimensions.
+    \pause
+    \item We remove $R$! Each dimension is then independent of other basis vector.
     \item L1-regularized linear SVM which runs linear time in data size is used in the work.
   \end{itemize}
 \end{frame}
@@ -293,24 +304,16 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
 \end{frame}
 
 \begin{frame}
-  \frametitle{A Linear Feature Selection Algorithm}
-  \begin{itemize}
-   \item []
-    \begin{figure}
-      \includegraphics[width=3.2in]{algo2.pdf}\\
-    \end{figure}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
   \frametitle{The Algorithm Workflow}
   \begin{enumerate}
     \item Input data: $(\by, X)$, a kernel $K$.
-    \item Run some basis selection algorithm in linear time and get the basis $B$.
-    \item Compute the new data $\tilde{X} = K(X, B) \text{Chol}(K(B, B)^{-1})$.
+    \item Run basis selection on $K(X, B)$.
+    \item Compute the new data $\tilde{X} = RK(X, B)$, where $ R^TR =  K(B, B)^{-1}$.
     \item Train on $(\by, \tilde{X})$
     \pause
-    \item [] Time: $O(\sqrt{\ell} \sqrt{\ell} d) + O(\ell \tilde{\ell} d)$ overall.
+    \item [] If we use $\tilde{\ell}$ samples to do 2....
+    \pause
+    \item [] Time: $O(\ell \tilde{\ell} d)$ overall.
     \item [] Space: $O(\ell \max(\tilde{\ell}, d))$.
   \end{enumerate}
 \end{frame}
@@ -322,8 +325,7 @@ Yu-Chiang Frank Wang, Research Center for IT Innovation, Academia Sinica\\
 \begin{frame}{Experimental Settings}
 \begin{itemize}
   \item We conduct experiments on two benchmark datasets: USPS and MNIST.
-  \item We randomly split 70\% of the data for training and the remaining 30\% for testing.
-  \item Repeat random split five times.
+  \item We randomly split 70\% of the data for training and the remaining 30\% for testing. (Repeat 5 times)
   \item We perform a five-fold cross validation to select the parameters $\gamma$ and $C$.
 \end{itemize}
 \begin{table}
@@ -347,7 +349,8 @@ MNIST   & 60000  & 780  & 3.6G & 47M  \\
 
 
 %-----------------------------------------------
-\begin{frame}{Discussions}
+\begin{frame}
+\frametitle{Compare Accuracy between Different Types of Methods}
 \begin{itemize}
   \item Our method achieved improved accuracy than linear SVMs
   \item The time for training and testing using our proposed model is comparable to that of linear SVMs
@@ -356,10 +359,8 @@ MNIST   & 60000  & 780  & 3.6G & 47M  \\
 
 \begin{table}
 {\small
-\caption{Comparisons of accuracy and computation time (in sec.) on three datasets. We denote our proposed Nystr\"om approximated SVM as Nystr\"om primal SVM below.}
 \center{
   \scriptsize
-
 \begin{tabular}{|l|l|l|l|}
 \hline
 USPS  & Accuracy & Training Time & Testing Time   \\
@@ -381,38 +382,30 @@ linear SVM & $91.917 \pm 0.077$ & $14.510 $ & $0.381 $   \\
 \end{frame}
 
 %-----------------------------------------------
-\begin{frame}{Comparisons to Random Basis Selection}
+\begin{frame}
+\frametitle{Comparisons to Random Basis Selection}
 \begin{itemize}
-  \item To verify the effectiveness of our proposed basis selection approach, we compare the performance
-\begin{itemize}
-  \item Using the basis matrix determined by our method
-  \item Using the random sampling strategy
+  \item Compare basis matrix determined by our method to
+  \item the random sampling basis selection strategy
 \end{itemize}
-\item We plot the recognition rates using these two different methods on the two datasets.
-\item Our selection method yields higher accuracy than random sampling when choosing the same basis size for most scenarios.
-\end{itemize}
-
-\end{frame}
-%-----------------------------------------------
-\begin{frame}{Comparisons to Random Basis Selection}
 \begin{figure}[h!]
 \centering
-\caption{Performance using our basis selection method (in blue) vs. random sampling (in green) on USPS (top) and MNIST (bottom) datasets.}
   \includegraphics[width=6cm]{compare.jpg}
 \label{fig:select}
 \end{figure}
+
 \end{frame}
 
 %-----------------------------------------------
 \begin{frame}{Conclusion}
 \begin{itemize}
-  \item We proposed a method to solve an approximated dual SVM in the primal based on Nystr\"om approximation. The new method scales linearly in time and space.
-  \item Experiments compared by linear SVM, our method
-  \begin{itemize}
-    \item achieved improved recognition accuracy
-    \item reported comparable computation time
-  \end{itemize}
-  \item Both training and testing time and space using our approximated model was remarkably reduced compared to that of nonlinear SVMs.
+  \item Primal low-rank representation of Nytr\"om-approximated dual SVM.
+  \item [] Training: linearly in time and space.
+  \item [] Accuracy: almost as good as non-linear SVM.
+  \item [] Prediction: nearly as fast as linear SVM. (e.g. Realtime robot vision applications.)
+  \item Connect feature selection with basis selection in Nystr\"om method. 
+  \item [] A basis selection method that preserves separability.
+  \item Applications: Large-Scale Image Retrieval, Realtime Machine Vision (training/test should be nearly as fast as feature extraction,) etc.
 \end{itemize}
 \end{frame}
 \end{document} 
